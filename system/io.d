@@ -45,7 +45,7 @@ void writef(T...)(const string fmt, T args) {
 				strPos = i + 2;       // % + Format specifier
 				break;
 			} else {
-				putChr(fmt[i]);
+				putChr(fmt[i], theme[1]);
 			}
 		}
 	}
