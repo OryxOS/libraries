@@ -9,26 +9,26 @@ struct Result(T, E) {
 	private T    result;  // Result presuming success
 	private E    error;   // Error presuming failure
 
-	bool isOkay;          // Was the funtion successful (is result valid)
+	bool is_good;          // Was the funtion successful (is result valid)
 
 	this (T good) {
 		result = good;
-		isOkay = true;
+		is_good = true;
 	}
 
 	this (E fail) {
 	   error = fail;
-	   isOkay = false;
+	   is_good = false;
 	}
 
-	T unwrapResult(string message = "Unwrap failed: no result") {
-		assert(isOkay, message);
+	T unwrap_result(string message = "Unwrap failed: no result") {
+		assert(is_good, message);
 
 		return result;
 	}
 
-	E unwrapError(string message = "Unwrap failed: no error") {
-		assert(!isOkay, message);
+	E unwrap_error(string message = "Unwrap failed: no error") {
+		assert(!is_good, message);
 
 		return error;
 	}

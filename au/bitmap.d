@@ -8,7 +8,7 @@ import au.types;
 struct BitMap {
 	ubyte* map;     // The actual bitmap
 	usize size;     // Size (bits) of the bitmap
-	usize nextFree; // Next available bit
+	usize next_free; // Next available bit
 	bool   full;
 
 	this(ubyte* map, usize size) {
@@ -17,19 +17,19 @@ struct BitMap {
 	}
 
     /// Checks if a bit is set
-	bool testBit(usize bit) {
+	bool test_bit(usize bit) {
 		assert(bit <= this.size);
 		return !!(map[bit / 8] & (1 << (bit % 8)));
 	}
 	
 	/// Sets a bit
-	void setBit(usize bit) {
+	void set_bit(usize bit) {
 		assert(bit <= this.size);
 		this.map[bit / 8] |= (1 << (bit % 8));
 	}
 
 	/// Unsets a bit
-	void unsetBit(usize bit) {
+	void unset_bit(usize bit) {
 		assert(bit <= this.size);
 		this.map[bit / 8] &= ~(1 << (bit % 8));
 	}

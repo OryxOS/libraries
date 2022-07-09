@@ -4,11 +4,11 @@ import au.types;
 
 import syscalls.oryx;
 
-static immutable pixel[4] theme = [0xFDFAEF, 0x3A4D53, 0x00866B, 0xEDEDED];
+static immutable pixel[4] colours = [0xFDFAEF, 0x3A4D53, 0x00866B, 0xEDEDED];
 
 void writefln(T...)(const string fmt, T args) {
 	writef(fmt, args);
-	putChr('\n', theme[1]);
+	put_chr('\n', colours[1]);
 }
 
 void writef(T...)(const string fmt, T args) {
@@ -19,40 +19,45 @@ void writef(T...)(const string fmt, T args) {
 		for (uint i = strPos; i < fmt.length; i++) {
 			if (fmt[i] == '%') {
 				switch (fmt[i + 1]) {
-				case 's':              // String
-					putItem(arg, true);
+				// String
+				case 's':
+					put_arg(arg, true);
 					break;
 
+				// Char
 				case 'c':
-					putItem(arg, true);
+					put_arg(arg, true);
 					break;
 
-				case 'l':              // Bool
-					putItem(arg, true);			
+				// Boolean
+				case 'l':
+					put_arg(arg, true);			
 					break;
 
-				case 'd':              // Decimal
-					putItem(arg, true);
+				// Decimal number
+				case 'd':
+					put_arg(arg, true);
 					break;
-
-				case 'h':              // Hexadecimal
-					putItem(arg, false);
+				
+				// hexadecimal numner
+				case 'h':
+					put_arg(arg, false);
 					break;
 
 				default:
 					assert(0, "Format specifier expected");
 				}
-				strPos = i + 2;       // % + Format specifier
+				strPos = i + 2; // % + Format specifier
 				break;
 			} else {
-				putChr(fmt[i], theme[1]);
+				put_chr(fmt[i], colours[1]);
 			}
 		}
 	}
 
 	// Print remainder of string after last format specifier
 	for (int i = strPos; i < fmt.length; i++) {
-		putChr(fmt[i], theme[1]);
+		put_chr(fmt[i], colours[1]);
 	}
 }
 
@@ -61,99 +66,95 @@ void writef(T...)(const string fmt, T args) {
  */
 
 // Yes, the bool here is neccessary because of how templates work
-void putItem(string item, bool dec) {
-	putStr(item);
+void put_arg(string item, bool dec) {
+	put_str(item);
 }
 
-void putItem(char item, bool dec) {
-	putChr(item, theme[1]);
+void put_arg(char item, bool dec) {
+	put_chr(item, colours[1]);
 }
 
-void putItem(bool item, bool dec) {
+void put_arg(bool item, bool dec) {
 	if (item == true) {
-		putStr("true", theme[2]);
+		put_str("true", colours[2]);
 	} else {
-		putStr("false", theme[2]);
+		put_str("false", colours[2]);
 	}
 }
 
-void putItem(void* item, bool dec) {
-	dec ? printDecNum(cast(usize) item) : printHexNum(cast(usize) item);
+void put_arg(void* item, bool dec) {
+	dec ? print_dec(cast(usize) item) : print_hex(cast(usize) item);
 }
 
-void putItem(ulong item, bool dec) {
-	dec ? printDecNum(item) : printHexNum(item);
+void put_arg(ulong item, bool dec) {
+	dec ? print_dec(item) : print_hex(item);
 }
 
-void putItem(uint item, bool dec) {
-	dec ? printDecNum(cast(ulong) item) : printHexNum(cast(ulong) item);
+void put_arg(uint item, bool dec) {
+	dec ? print_dec(cast(ulong) item) : print_hex(cast(ulong) item);
 }
 
-void putItem(ushort item, bool dec) {
-	dec ? printDecNum(cast(ulong) item) : printHexNum(cast(ulong) item);
+void put_arg(ushort item, bool dec) {
+	dec ? print_dec(cast(ulong) item) : print_hex(cast(ulong) item);
 }
 
-void putItem(ubyte item, bool dec) {
-	dec ? printDecNum(cast(ulong) item) : printHexNum(cast(ulong) item);
+void put_arg(ubyte item, bool dec) {
+	dec ? print_dec(cast(ulong) item) : print_hex(cast(ulong) item);
 }
 
 //////////////////////////////
 //        Formatting        //
 //////////////////////////////
 
-private immutable TABLE_B16 = "0123456789ABCDEF";
-private immutable TABLE_B10 = "0123456789";
+private immutable TableB16 = "0123456789ABCDEF";
+private immutable TableB10 = "0123456789";
 
 // Integer to Hexadecimal conversion
-private void printHexNum(ulong item) {
+private void print_hex(ulong item) {
 	char[16] buf;
 
 	if (item == 0) {
-		putStr("0x0", theme[2]);
+		put_str("0x0", colours[2]);
 		return;
 	}
 
-	putStr("0x", theme[2]);
+	put_str("0x", colours[2]);
 	for (int i = 15; item; i--) {
-		buf[i] = TABLE_B16[item % 16];
+		buf[i] = TableB16[item % 16];
 		item /= 16;
 	}
 
 	foreach(c; buf) {
 		// Don't print unused whitespace
 		if (c != char.init) {
-			putChr(c, theme[2]);
+			put_chr(c, colours[2]);
 		}
 	}
 }
 
-private void printDecNum(ulong item) {
+private void print_dec(ulong item) {
 	char[32] buf;
 
 	if (item == 0) {
-		putStr("0", theme[2]);
+		put_str("0", colours[2]);
 		return;
 	}
 
 	for (int i = 31; item; i--) {
-		buf[i] = TABLE_B10[item % 10];
+		buf[i] = TableB10[item % 10];
 		item /= 10;
 	}
 
 	foreach(c; buf) {
 		// Don't print unused whitespace
 		if (c != char.init) {
-			putChr(c, theme[2]);
+			put_chr(c, colours[2]);
 		}
 	}
-} 
+}
 
-//////////////////////////////
-//         Syscalls         //
-//////////////////////////////
-
-void putStr(const string s, uint col = theme[1]) {
+void put_str(const string s, uint col = colours[1]) {
 	foreach (c; s) {
-		putChr(c, col);
+		put_chr(c, col);
 	}
 }
